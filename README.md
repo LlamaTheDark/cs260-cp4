@@ -33,7 +33,11 @@ const noteSchema = new mongoose.Schema({
 ```
 
 ## Pages
-There are two pages, (1) a page to search notes and (2) a page to view the notes. I implemented them with Vue CLI and Vue Router.
+There are two pages:
+1. a page to search notes, and
+2. a page to view the notes.
+
+I implemented them with Vue CLI and Vue Router.
 
 ## API
 The site uses an API to read from the back end. 
