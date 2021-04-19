@@ -58,7 +58,7 @@ The Note endpoints have the following functionality:
 - get a list of all notes which have a requested tag belonging to them (i.e. a tag in their tag array)
 - edit a note
 
-The back end is implemented with Node, Express and MongoDB.
+The back end is implemented with Node, Express, and MongoDB.
 
 
 ### Other Notes:
