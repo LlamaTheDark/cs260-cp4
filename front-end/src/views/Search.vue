@@ -90,7 +90,6 @@ export default {
 * {
     font-family: 'Source Sans Pro', sans-serif;
     box-sizing: border-box;
-    border: 1px solid blue;
 }
 
 #filter {

@@ -28,7 +28,7 @@
                     <li v-for="f in folders" :key="f._id" @click='selectFolder(f)'>
                         <div :class="{'selected-folder': (f === folder), 'folder-title': true}">
                             <h4>
-                                {{ f.name }}{{ f.extension }}
+                                {{ f.name }}
                             </h4>
                             <div v-if="f === folder">
                                 <p class='folder-description'>
@@ -44,9 +44,12 @@
                 </ul>
             </div>
             <div id='files-list'>
-                <h2 class='title'>
+                <FilesList id='files-list' :notes="notes" :options="true" />
+
+                <!-- <h2 class='title'>
                     Notes
-                </h2>
+                </h2> -->
+                <!--
                 <ul id='files'>
                     <li v-for="n in notes" :key="n._id" @click='selectNote(n)'>
                         <h4 :class="{selected: (n === note), 'note-title': true}">
@@ -54,7 +57,7 @@
                         </h4>
                         <hr>
                     </li>
-                </ul>
+                </ul> -->
             </div>
         </div>
         <FileView id='file-view' :note="note" :rendered="rendered" :folder="folder" />
@@ -81,14 +84,23 @@
 </template>
 
 <script>
+/*
+TODO: 
+ - total notes is still not accurate
+
+
+
+*/
 
 import FileView  from '@/components/FileView.vue' ;
+import FilesList from '@/components/FilesList.vue';
 import axios from 'axios';
 
 export default {
     name: 'Home',
     components: {
         FileView,
+        FilesList,
     },
     data() {
         return {
@@ -96,28 +108,36 @@ export default {
             folder: null,
             folderName: '',
             notes: [],
-            note: null,
+            // note: null,
             rendered: false,
 
             newTagText: '',
         }
     },
-    created() {
-        this.getFolders();
+    async created() {
+        await this.getFolders();
+
+        if(this.note !== null){
+            let tmp = await this.getFolderFromNote(this.$root.$data.note);
+            this.folder = tmp;
+            await this.getNotes();
+            this.$root.$data.note = this.notes.find(n => n._id === this.$root.$data.note._id);
+        }
     },
     computed: {
         currentTags() {
-            return (this.note === null)?[]:this.note.tags;
+            return (this.$root.$data.note === null)?[]:this.$root.$data.note.tags;
         },
-        // note() {
-        //     return this.$root.$data.note;
-        // }
+        note() {
+            return this.$root.$data.note;
+        }
     },
     methods: {
         async getFolders() {
             try {
                 const response = await axios.get('/api/folders');
                 this.folders = response.data;
+                
                 if (this.folders.length != 0){ // if there are folders present upon creation, select the first one
                     this.folder = this.folders[this.folders.length-1];
                 }
@@ -126,8 +146,9 @@ export default {
                 }
                 if(this.folders.length === 0){
                     this.folder = null;
-                    this.note   = null;
+                    this.$root.$data.note = null;
                 }
+
             } catch(error) {
                 console.log(error);
             }
@@ -164,16 +185,16 @@ export default {
             }
         },
         async deleteNote() {
-            if(this.note === null)
+            if(this.$root.$data.note === null)
                 return;
             // you'll have to delete each tag from the note first so that we don't have leftover
             // tags in the folder's tag array
             // I really shoulda just done a computed value for the folder's tags it woulda made this easier
-            for(let t of this.note.tags){
+            for(let t of this.$root.$data.note.tags){
                 this.removeTag(t);
             }
             try {
-                await axios.delete(`/api/folders/${this.folder._id}/notes/${this.note._id}`);
+                await axios.delete(`/api/folders/${this.folder._id}/notes/${this.$root.$data.note._id}`);
 
                 this.folder.noteCount--;
                 await axios.put(`/api/folders/${this.folder._id}`, this.folder);
@@ -185,9 +206,9 @@ export default {
             try {
                 const response = await axios.get(`/api/folders/${this.folder._id}/notes`);
                 this.notes = response.data;
-                if(this.notes.length != 0/* && this.note === null*/){
-                    this.note = this.notes[this.notes.length-1];
-                }
+                // if(this.notes.length != 0){
+                //     this.$root.$data.note = this.notes[this.notes.length-1];
+                // }
             } catch(error) {
                 console.log('error in getNotes()');
                 console.log(error);
@@ -233,17 +254,17 @@ export default {
             this.getNotes();
         },
         selectNote(n){
-            this.note = n;
-            // console.log(`selected note: ${this.note.name}`);
+            this.$root.$data.note = n;
+            // console.log(`selected note: ${this.$root.$data.note.name}`);
             // console.log(`current folder: ${this.folder.name}`);
         },
 
         async addNewTag(){
-            if(this.note === null)
+            if(this.$root.$data.note === null)
                 return;
-            if(!this.note.tags.includes(this.newTagText)){
-                this.note.tags.push(this.newTagText);
-                await axios.put(`/api/folders/${this.folder._id}/notes/${this.note._id}`, this.note);
+            if(!this.$root.$data.note.tags.includes(this.newTagText)){
+                this.$root.$data.note.tags.push(this.newTagText);
+                await axios.put(`/api/folders/${this.folder._id}/notes/${this.$root.$data.note._id}`, this.$root.$data.note);
                 if(!this.folder.tags.includes(this.newTagText)){
                     this.folder.tags.push(this.newTagText);
                     try{
@@ -256,9 +277,9 @@ export default {
             }
         },
         async removeTag(tag){
-            let i = this.note.tags.indexOf(tag);
+            let i = this.$root.$data.note.tags.indexOf(tag);
             if(i !== -1){
-                this.note.tags.splice(i, 1);
+                this.$root.$data.note.tags.splice(i, 1);
             }
 
             let inFolder = false;
@@ -273,12 +294,14 @@ export default {
                 this.folder.tags.splice(i, 1);
             }
 
-            let response = await axios.put(`/api/folders/${this.folder._id}/notes/${this.note._id}`, this.note);
-            this.note = response.data;
-            response = await axios.put(`/api/folders/${this.folder._id}`, this.folder);
-            this.folder = response.data;
+            await axios.put(`/api/folders/${this.folder._id}/notes/${this.$root.$data.note._id}`, this.$root.$data.note);
+            await axios.put(`/api/folders/${this.folder._id}`, this.folder);
 
 
+        },
+        async getFolderFromNote(note){
+            let response = await axios.get(`/api/folders/${note.folder}`);
+            return this.folders.find(folder => response.data._id === folder._id);
         }
     },
     watch: {
@@ -309,7 +332,10 @@ export default {
 }
 
 /* ## FOR NOTES ## */
-#files {
+#files-list {
+    width: 150px;
+}
+#files-list ul {
     list-style: none;
     padding: 5px;
 
@@ -321,19 +347,19 @@ export default {
 
     /* border: 1px solid blue; */
 }
-#files li {
+#files-list ul li {
     margin: 10px 0px;
     /* padding: 0 10px; */
 }
-#files li * {
+#files-list ul li * {
     padding: 0;
     margin: 0;
 }
-#files li:hover {
+#files-list ul li:hover {
     cursor: pointer;
 }
 
-#files li>h4 {
+#files-list ul li>h4 {
     padding: 2px;
 }
 

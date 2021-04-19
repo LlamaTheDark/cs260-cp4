@@ -1,6 +1,6 @@
 <template>
     <div id='FilesList'>
-        <h2>
+        <h2 class='title'>
             Notes
         </h2>
         <ul id='files'>
@@ -20,12 +20,17 @@ export default {
     name: 'FilesList',
     props: {
         notes: Array,
-        note: Object
+    },
+    computed: {
+        note(){
+            return this.$root.$data.note;
+        }
     },
     methods: {
         selectNote(n){
-            this.note = n;
-            console.log(this.note.name);
+            this.$root.$data.note = n;
+            // console.log(this.$root.$data.note);
+            // console.log(this.note.name);
         }
     }
 }
@@ -36,6 +41,10 @@ export default {
 
 * {
     font-family: 'Source Sans Pro', sans-serif;
+}
+
+.title {
+    text-decoration: underline;
 }
 
 

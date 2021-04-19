@@ -34,15 +34,18 @@ app.get('/api/folders', async (req, res) => {
     }
 });
 
-app.get('/api/folders/selected', async (req, res) => {
-    try{
-        let folder = await Folder.findOne({selected: true});
+// get a folder by its id
+app.get('/api/folders/:folderID', async (req, res) => {
+    try {
+        console.log('BIG NONO doodo');
+        let folder = await Folder.findOne({_id: req.params.folderID});
         if(!folder){
             res.sendStatus(404);
+            console.log('BIG NONO');
             return;
         }
         res.send(folder);
-    } catch(error) {
+    } catch(err) { 
         console.log(error);
         res.sendStatus(500);
     }

@@ -8,7 +8,7 @@
         </div>
         <router-view/>
         <div id="footer">
-            <a href='https://github.com/LlamaTheDark/note-app'>
+            <a href='https://github.com/LlamaTheDark/cs260-cp4'>
                 <div>
                     GitHub Link
                 </div>
@@ -19,18 +19,18 @@
 
 <script>
 export default {
-    created() {
-        let data = this.$root.$data;
-        data.notes.forEach(
-            note => note.tags.forEach(
-                tag => {
-                    if(!data.tags.includes(tag)) 
-                        data.tags.push(tag);
-                }
-            )
-        );
-        data.tags.sort();
-    }
+    // created() {
+    //     let data = this.$root.$data;
+    //     data.notes.forEach(
+    //         note => note.tags.forEach(
+    //             tag => {
+    //                 if(!data.tags.includes(tag)) 
+    //                     data.tags.push(tag);
+    //             }
+    //         )
+    //     );
+    //     data.tags.sort();
+    // }
 }
 </script>
 

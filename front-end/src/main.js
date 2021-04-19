@@ -5,7 +5,7 @@ import router from './router'
 Vue.config.productionTip = false
 
 let data = {
-    note: {}
+    note: null,
 }
 
 new Vue({

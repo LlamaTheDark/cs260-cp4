@@ -71,20 +71,6 @@ app.get('/api/folders/:folderID/notes', async (req, res) => {
     }
 });
 
-// get a note that has selected: true property
-app.get('/api/folders/:folderID/notes/selected', async (req, res) => {
-    try{
-        let note = await Note.findOne({folder: req.params.folderID, selected: true});
-        if(!note){
-            res.sendStatus(404);
-            return;
-        }
-        res.send(note);
-    } catch(error) {
-        console.log(error);
-        return;
-    }
-});
 
 // get all notes with a certain tag
 app.get('/api/folders/:folderID/notes/:tag', async (req, res) => {
@@ -191,15 +177,18 @@ app.get('/api/folders', async (req, res) => {
     }
 });
 
-app.get('/api/folders/selected', async (req, res) => {
-    try{
-        let folder = await Folder.findOne({selected: true});
+// get a folder by its id
+app.get('/api/folders/:folderID', async (req, res) => {
+    console.log('getting a folder by its id...');
+    try {
+        let folder = await Folder.findOne({_id: req.params.folderID});
         if(!folder){
             res.sendStatus(404);
+            console.log('BIG NONO');
             return;
         }
         res.send(folder);
-    } catch(error) {
+    } catch(err) { 
         console.log(error);
         res.sendStatus(500);
     }
@@ -253,6 +242,7 @@ app.put('/api/folders/:folderID', async (req, res) => {
         }
         folder.name = req.body.name;
         folder.tags = req.body.tags;
+        folder.noteCount = req.body.noteCount;
         await folder.save();
         res.send(folder);
     } catch(error) {
