@@ -59,3 +59,7 @@ The Note endpoints have the following functionality:
 - edit a note
 
 The back end is implemented with Node, Express and MongoDB.
+
+
+### Other Notes:
+You may notice `notes.js` and `folders.js` files in `/back-end`. I was going to use these as seperate modules instead of having it all on one folder, but I opted against it because of time. I may very well do it for the final project, though. 
