@@ -2,6 +2,9 @@
 creative project #4 for cs260
 see results [here](https://cp4.seamusmorrison.org) (https://cp4.seamusmorrison.org)
 
+## Overview
+The purpose of the web app is to be able to store note files, tag them, search them by keyword and tag, as well as render their content using html and markdown.
+
 ## Rendering
 again, I just used marked.js to render stuff
 
